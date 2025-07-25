@@ -1,0 +1,23 @@
+nl2sql:
+  threshold:
+
+embedding:
+  # 词嵌入服务提供商
+  provider:
+  url:
+
+  # siliconflow需要提供这些认证信息
+  siliconflow:
+    token:
+    model:
+  
+elasticsearch:
+  url:
+  username:
+  password:
+  env:
+
+llm:
+  url:
+  key:
+  model:

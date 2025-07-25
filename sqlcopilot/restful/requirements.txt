@@ -1,0 +1,10 @@
+fastapi[standard]
+pydantic
+elasticsearch==8.17.2
+openai
+requests
+loguru
+more_itertools
+tqdm
+sse-starlette
+

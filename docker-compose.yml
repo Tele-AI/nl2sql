@@ -1,0 +1,70 @@
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
+    container_name: nl2sql-elasticsearch
+    environment:
+      - discovery.type=single-node
+      # - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - ELASTIC_PASSWORD=pleaseChangeMe
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -u elastic:pleaseChangeMe -fsS http://localhost:9200/_cluster/health?wait_for_status=yellow || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    networks:
+      - nl2sql-network
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
+  nl2sql:
+    image: nl2sql:0.0.1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nl2sql-backend
+    environment:
+      # Elasticsearch settings
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=pleaseChangeMe
+      - ELASTICSEARCH_ENV=dev
+      # NL2SQL settings
+      - NL2SQL_THRESHOLD=0.2
+      # 词向量服务配置
+      # e.g. 硅基流动推理服务 
+      - EMBEDDING_PROVIDER=
+      # 词向量服务URL
+      - EMBEDDING_URL=
+      # token
+      - EMBEDDING_SILICONFLOW_TOKEN=
+      # 目前支持1024长度的词向量模型，如BGE等
+      - EMBEDDING_SILICONFLOW_MODEL=
+      # 大模型推理服务配置，支持OpenAI接口的推理服务
+      - LLM_URL=
+      # LLM Key
+      - LLM_KEY=
+      # Model-name, 支持Qwen系列非think模型
+      - LLM_MODEL=
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - nl2sql-network
+    ports:
+      - "8001:80"
+
+volumes:
+  elasticsearch-data:
+    driver: local
+
+networks:
+  nl2sql-network:
+    driver: bridge
+
