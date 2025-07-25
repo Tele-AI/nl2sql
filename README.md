@@ -82,7 +82,7 @@ fastapi run app/main.py --port 8080
 
 ## API接口
 
-详细使用说明及API文档请参见 [API文档](documentation/api.md)。
+详细使用说明及API文档请参见 [API文档](docs/api.md)。
 
 ### 主要接口
 
