@@ -5,6 +5,8 @@ embedding:
   # 词嵌入服务提供商
   provider:
   url:
+  # 词向量维度配置
+  vector_dimension:
 
   # siliconflow需要提供这些认证信息
   siliconflow:

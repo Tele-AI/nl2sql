@@ -25,7 +25,7 @@ NL2SQL 是一个基于大语言模型的自然语言转SQL（NL2SQL）后端服�
 
 - **后端框架**：FastAPI
 - **向量数据库**：Elasticsearch
-- **词向量服务**：BGE词向量模型
+- **词向量服务**：支持自定义词向量服务接入
 - **大语言模型**：支持OpenAI兼容接口
 - **部署方式**：Docker容器化部署
 
@@ -123,9 +123,18 @@ fastapi run app/main.py --port 8080
 
 ### 添加新的语义向量服务
 
+详细的词向量服务提供商配置说明，包括：
+- 各提供商的配置方式（配置文件、环境变量、Docker Compose）
+- API接口规范
+- 向量维度配置
+- 扩展新的向量模型提供商
+- 最佳实践和故障排除
+
 1. 在 `sqlcopilot/core/embedding.py` 中添加新的服务类，实现 `get_embedding(text: str) -> List` 方法
 2. 在 `EmbeddingService.__init__` 方法中添加新提供商的条件分支
 3. 更新配置文件，添加新服务的配置项
+
+详细的扩展指南请参考 [词向量Provider接入文档](docs/embedding-provider.md) 中的"扩展新的向量模型提供商"章节。
 
 ## 贡献指南
 

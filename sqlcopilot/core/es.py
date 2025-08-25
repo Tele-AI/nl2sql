@@ -15,162 +15,169 @@ elastic_search_client = Elasticsearch(
 
 env = config.elasticsearch.env
 
-# Define index mappings for each model
-index_mappings = {
-    "business": {
-        "mappings": {
-            "dynamic": "false",
-            "properties": {
-                "bizid": {"type": "keyword"},
-                "create_time": {"type": "date"},
-            },
-        }
-    },
-    "knowledge": {
-        "mappings": {
-            "dynamic": "false",
-            "properties": {
-                "bizid": {"type": "keyword"},
-                "knowledge_id": {"type": "keyword"},
-                "table_id": {"type": "keyword"},
-                "key_alpha": {"type": "text"},
-                "key_alpha_embedding": {
-                    "type": "dense_vector",
-                    "dims": 1024,
-                    "index": True,
-                    "similarity": "cosine",
+# 获取向量维度配置，默认为1024
+VECTOR_DIMENSION = getattr(config.embedding, 'vector_dimension', 1024)
+
+def create_index_mappings():
+    """动态创建索引映射，使用配置文件中的向量维度"""
+    return {
+        "business": {
+            "mappings": {
+                "dynamic": "false",
+                "properties": {
+                    "bizid": {"type": "keyword"},
+                    "create_time": {"type": "date"},
                 },
-                "key_beta": {"type": "text"},
-                "value": {"type": "text"},
+            }
+        },
+        "knowledge": {
+            "mappings": {
+                "dynamic": "false",
+                "properties": {
+                    "bizid": {"type": "keyword"},
+                    "knowledge_id": {"type": "keyword"},
+                    "table_id": {"type": "keyword"},
+                    "key_alpha": {"type": "text"},
+                    "key_alpha_embedding": {
+                        "type": "dense_vector",
+                        "dims": VECTOR_DIMENSION,
+                        "index": True,
+                        "similarity": "cosine",
+                    },
+                    "key_beta": {"type": "text"},
+                    "value": {"type": "text"},
+                },
             },
         },
-    },
-    "sqlcases": {
-        "mappings": {
-            "dynamic": "false",
-            "properties": {
-                "bizid": {"type": "keyword"},
-                "table_id": {"type": "keyword"},
-                "case_id": {"type": "keyword"},
-                "querys": {"type": "text"},
-                "sql": {"type": "text"},
-            },
-        }
-    },
-    "prompt": {
-        "mappings": {
-            "dynamic": "false",
-            "properties": {
-                "bizid": {"type": "keyword"},
-                "time_convert_agent": {"type": "text"},
-                "nl2sql_agent": {"type": "text"},
-                "element_extract_agent": {"type": "text"},
-            },
-        }
-    },
-    "tableinfo": {
-        "mappings": {
-            "dynamic": "false",
-            "properties": {
-                "bizid": {"type": "keyword"},
-                "table_id": {"type": "keyword"},
-                "table_name": {"type": "text"},
-                "table_comment": {"type": "text"},
-                "update_time": {"type": "date"},
-                "semantic_vector": {
-                    "type": "dense_vector",
-                    "dims": 1024,
-                    "index": True,
-                    "similarity": "cosine",
+        "sqlcases": {
+            "mappings": {
+                "dynamic": "false",
+                "properties": {
+                    "bizid": {"type": "keyword"},
+                    "table_id": {"type": "keyword"},
+                    "case_id": {"type": "keyword"},
+                    "querys": {"type": "text"},
+                    "sql": {"type": "text"},
                 },
-                "name_vector": {
-                    "type": "dense_vector",
-                    "dims": 1024,
-                    "index": True,
-                    "similarity": "cosine",
+            }
+        },
+        "prompt": {
+            "mappings": {
+                "dynamic": "false",
+                "properties": {
+                    "bizid": {"type": "keyword"},
+                    "time_convert_agent": {"type": "text"},
+                    "nl2sql_agent": {"type": "text"},
+                    "element_extract_agent": {"type": "text"},
                 },
-                "comment_vector": {
-                    "type": "dense_vector",
-                    "dims": 1024,
-                    "index": True,
-                    "similarity": "cosine",
-                },
-                "fields_vector": {
-                    "type": "dense_vector",
-                    "dims": 1024,
-                    "index": True,
-                    "similarity": "cosine",
-                },
-                "fields": {
-                    "type": "nested",
-                    "properties": {
-                        "field_id": {"type": "keyword"},
-                        "filed_name": {"type": "text"},
-                        "field_datatype": {"type": "text"},
-                        "field_comment": {"type": "text"},
+            }
+        },
+        "tableinfo": {
+            "mappings": {
+                "dynamic": "false",
+                "properties": {
+                    "bizid": {"type": "keyword"},
+                    "table_id": {"type": "keyword"},
+                    "table_name": {"type": "text"},
+                    "table_comment": {"type": "text"},
+                    "update_time": {"type": "date"},
+                    "semantic_vector": {
+                        "type": "dense_vector",
+                        "dims": VECTOR_DIMENSION,
+                        "index": True,
+                        "similarity": "cosine",
+                    },
+                    "name_vector": {
+                        "type": "dense_vector",
+                        "dims": VECTOR_DIMENSION,
+                        "index": True,
+                        "similarity": "cosine",
+                    },
+                    "comment_vector": {
+                        "type": "dense_vector",
+                        "dims": VECTOR_DIMENSION,
+                        "index": True,
+                        "similarity": "cosine",
+                    },
+                    "fields_vector": {
+                        "type": "dense_vector",
+                        "dims": VECTOR_DIMENSION,
+                        "index": True,
+                        "similarity": "cosine",
+                    },
+                    "fields": {
+                        "type": "nested",
+                        "properties": {
+                            "field_id": {"type": "keyword"},
+                            "filed_name": {"type": "text"},
+                            "field_datatype": {"type": "text"},
+                            "field_comment": {"type": "text"},
+                        },
                     },
                 },
             },
         },
-    },
-    "settings": {
-        "mappings": {
-            "dynamic": "false",
-            "properties": {
-                "bizid": {"type": "keyword"},
-                "table_retrieve_threshold": {"type": "float"},
-                "enable_table_auth": {"type": "boolean"},
-            },
-        }
-    },
-    "synonym": {
-        "mappings": {
-            "dynamic": "false",
-            "properties": {
-                "bizid": {"type": "keyword"},
-                "primary": {"type": "keyword"},
-                "secondary": {"type": "keyword"},
-            },
-        }
-    },
-    "dim_values": {
-        "mappings": {
-            "dynamic": "false",
-            "properties": {
-                "bizid": {"type": "keyword"},
-                "table_id": {"type": "keyword"},
-                "field_id": {"type": "keyword"},
-                "value": {"type": "text"},
-            },
-        }
-    },
-    "field_inverted": {
-        "mappings": {
-            "dynamic": "false",
-            "properties": {
-                "bizid": {"type": "keyword"},
-                "field_id": {"type": "keyword"},
-                "field_name": {"type": "keyword"},
-                "field_comment": {"type": "keyword"},
-                "update_time": {"type": "date"},
-                "field_name_vector": {
-                    "type": "dense_vector",
-                    "dims": 1024,
-                    "index": True,
-                    "similarity": "cosine",
+        "settings": {
+            "mappings": {
+                "dynamic": "false",
+                "properties": {
+                    "bizid": {"type": "keyword"},
+                    "table_retrieve_threshold": {"type": "float"},
+                    "enable_table_auth": {"type": "boolean"},
                 },
-                "field_comment_vector": {
-                    "type": "dense_vector",
-                    "dims": 1024,
-                    "index": True,
-                    "similarity": "cosine",
+            }
+        },
+        "synonym": {
+            "mappings": {
+                "dynamic": "false",
+                "properties": {
+                    "bizid": {"type": "keyword"},
+                    "primary": {"type": "keyword"},
+                    "secondary": {"type": "keyword"},
                 },
-                "table_id_list": {"type": "text"},
-            },
-        }
-    },
-    # Add more mappings for other models as needed
-}
+            }
+        },
+        "dim_values": {
+            "mappings": {
+                "dynamic": "false",
+                "properties": {
+                    "bizid": {"type": "keyword"},
+                    "table_id": {"type": "keyword"},
+                    "field_id": {"type": "keyword"},
+                    "value": {"type": "text"},
+                },
+            }
+        },
+        "field_inverted": {
+            "mappings": {
+                "dynamic": "false",
+                "properties": {
+                    "bizid": {"type": "keyword"},
+                    "field_id": {"type": "keyword"},
+                    "field_name": {"type": "keyword"},
+                    "field_comment": {"type": "keyword"},
+                    "update_time": {"type": "date"},
+                    "field_name_vector": {
+                        "type": "dense_vector",
+                        "dims": VECTOR_DIMENSION,
+                        "index": True,
+                        "similarity": "cosine",
+                    },
+                    "field_comment_vector": {
+                        "type": "dense_vector",
+                        "dims": VECTOR_DIMENSION,
+                        "index": True,
+                        "similarity": "cosine",
+                    },
+                    "table_id_list": {"type": "text"},
+                },
+            }
+        },
+        # Add more mappings for other models as needed
+    }
+
+# 获取索引映射
+index_mappings = create_index_mappings()
 
 # Create indices with mappings
 import time
