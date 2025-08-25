@@ -42,6 +42,8 @@ services:
       - EMBEDDING_PROVIDER=
       # 词向量服务URL
       - EMBEDDING_URL=
+      # 词向量维度配置
+      - VECTOR_DIMENSION=
       # token
       - EMBEDDING_SILICONFLOW_TOKEN=
       # 目前支持1024长度的词向量模型，如BGE等
